@@ -1,10 +1,33 @@
 'use client'
 import Form from 'next/form'
-const CreateUser = () => {
+import { useEffect } from 'react'
+import key from '../../APIKey.js'
+const CreateUser = ({setCreateUserModal}) => {
+    useEffect(() => {
+        const fetchData = async() => {
+            const response = await fetch('https://upunikself-fe0e.restdb.io/rest/fav-book-users', {
+                headers:{
+                    'Content-Type' : 'application/json',
+                    'cache-control': 'no-cache',
+                    'x-apikey': key
+                }
+            
+            })
+            if(!response.ok){
+                return new Error('Something went wrong')
+            }
+            let data = await response.json()
+            console.log(data)
+        }
+        fetchData()
+    })
+
     return (
         <div className='absolute grid grid-rows-6 grid-cols-6 w-full h-screen z-50'>
             <div className="row-start-2 row-span-3 col-start-3 col-span-2 bg-white rounded-xl shadow-2xl">
-                <Form className="w-2/3 h-full bg-gray-100 p-8 rounded-lg shadow-lg mx-auto">
+            <button className='text-gray-500 float-right p-2 top-0' onClick={() => setCreateUserModal(false)}>X</button>
+
+                <Form className="w-full h-full bg-gray-100 p-8 rounded-lg shadow-lg mx-auto">
                     {/* Username */}
                     <label htmlFor="username" className="block text-black mb-2">
                         Username:
