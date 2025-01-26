@@ -9,10 +9,10 @@ export default function Home() {
 	const userNameRef = useRef(null);
 	const userPassRef = useRef(null);
 
-
+	// Login calling api path
 	const login = async (username, password) => {
 		try {
-			const response = await fetch('/api/user', {
+			const response = await fetch('/api/user/login', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
@@ -25,10 +25,13 @@ export default function Home() {
 			}
 
 			const data = await response.json();
-			console.log('Login successful:', data);
-		} catch (error) {
+
+			//passing user object via search params
+			router.push(`/user/${username}/homepage?userData=${encodeURIComponent(JSON.stringify(data))}`);
+			} catch (error) {
 			console.error('Login failed:', error.message);
 		}
+
 	};
 
 
