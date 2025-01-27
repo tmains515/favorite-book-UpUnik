@@ -1,6 +1,5 @@
 
 import key from '../../../APIKey';
-import bcrypt from 'bcrypt'
 export async function POST(req) {
 	try {
 		const { username, password } = await req.json();
@@ -29,9 +28,9 @@ export async function POST(req) {
 			);
 		}
 
-		// Return success response
-		return new Response(
-			JSON.stringify({ message: 'Login successful', id: user._id, username: user.username, email: user.email }),
+		// Return success response                                  
+		return new Response(										
+			JSON.stringify({id: user._id, username: user.username, email: user.email}),
 			{ status: 200, headers: { 'Content-Type': 'application/json' } }
 		);
 	} catch (error) {

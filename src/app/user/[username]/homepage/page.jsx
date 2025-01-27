@@ -7,13 +7,13 @@ const homepage = () => {
     const userData = searchParams.get('userData') ? JSON.parse(searchParams.get('userData')) : null;
     const [userFavorites, setUserFavorites] = useState([]);
     const [edit, setEdit] = useState(null);
+    const [submit, setSubmit] = useState(false)
     const [formData, setFormData] = useState({
         title: '',
         author: '',
         genre: '',
     });
     useEffect(() => {
-        console.log('useEffect triggered with userData:', userData);
         const fetchData = async () => {
             try {
 
@@ -30,13 +30,17 @@ const homepage = () => {
                 }
 
                 const data = await response.json();
+                console.log(data + "<<this is data")
                 setUserFavorites(data)
             } catch (error) {
                 console.error(error.message);
             }
         }
         fetchData()
-    }, [userData.username])
+        if(submit){
+            setSubmit(false)
+        }
+    }, [userData.username, submit])
 
 
     useEffect(() => {
@@ -58,29 +62,42 @@ const homepage = () => {
         }));
     };
 
-    // Handle form submission
+    // Handle form submission based on edit active or not
     const handleSubmit = (e) => {
-        e.preventDefault();    
+        e.preventDefault();
 
-        // If edit is null, submit as POST and update relation table as well
+        const updatedFavorites = [
+            ...userFavorites,
+            {
+                title: formData.title,
+                author: formData.author,
+                genre: formData.genre,
+            },
+        ];
+    
+        setUserFavorites(updatedFavorites);
+        console.log(JSON.stringify(userData)+ "<<")
+
+        // If edit is null, submit as POST 
         const newFavorite = async() => {
             const request = await fetch('/api/user/add-favorite', {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'content-type': 'application/json'
                 },
-                body: JSON.stringify({title: formData.title, author: formData.author, genre: formData.genre})
+                body: JSON.stringify({
+                    _id: userData.id,
+                    username: userData.username,
+                    favorite_books: updatedFavorites
+                }),
             })
-            console.log(request)
             if (!request.ok) {
                 throw new Error('Failed to add to favorites');
             }
 
             const data = await request.json();
             alert(data.message);
-
-
-
+            setSubmit(true);
             setFormData({
                 title: '',
                 author: '',

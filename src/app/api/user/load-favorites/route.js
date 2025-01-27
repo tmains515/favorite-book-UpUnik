@@ -1,42 +1,40 @@
 import key from '../../../APIKey'
 
-export async function POST(req) {	
-	try {
-		//const { id } = await req.json();
-		const { username } = await req.json();
-	
-		const response = await fetch('https://upunikself-fe0e.restdb.io/rest/favorited-books', {
-			method: 'GET',
-			headers: {
-				'content-type': 'application/json',
-				'cache-control': 'no-cache',
-				'x-apikey': key,
-			},
-		});
+export async function POST(req) {
+    try {
+        const { username } = await req.json();
+        // Fetch the current user record
+        const userResponse = await fetch(
+            `https://upunikself-fe0e.restdb.io/rest/fav-book-users?q={"username": "admin"}`,
+            {
+                method: 'GET',
+                headers: {
+                    'content-type': 'application/json',
+                    'cache-control': 'no-cache',
+                    'x-apikey': key,
+                },
+            }
+        );
 
-		const books = await response.json();
-		console.log('Fetched books:', JSON.stringify(books, null, 2));
-		const userBooks = books.find((entry) =>
-			entry.user_id.some((user) => user.username === username)
-		  );
-		  
-		  const favorites = userBooks ? userBooks.book_id : [];
-		  console.log('Favorites:', favorites);
-		  
+        if (!userResponse.ok) {
+            throw new Error('Failed to fetch user');
+        }
 
-		return new Response(JSON.stringify(favorites), {
-		  status: 200,
-		  headers: { 
-			'Content-Type': 'application/json' ,
-			'cache-control': 'no-cache',
-			'x-apikey': key,
-		},
-		});
-	  } catch (error) {
-		console.error('Error loading favorites:', error);
-		return new Response(
-		  JSON.stringify({ error: 'Failed to load favorites' }),
-		  { status: 500, headers: { 'Content-Type': 'application/json' } }
-		);
-	  }
+        const users = await userResponse.json();
+        const user = users[0];
+
+        const favoriteBooks = user.favorite_books || [];
+
+        return new Response(JSON.stringify(favoriteBooks), {
+            status: 200,
+            headers: { 'Content-Type': 'application/json' },
+        });
+    } catch (error) {
+        console.error('Error updating favorites:', error.message);
+        return new Response(
+            JSON.stringify({ error: 'Failed to update favorites' }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+        );
+    }
 }
+

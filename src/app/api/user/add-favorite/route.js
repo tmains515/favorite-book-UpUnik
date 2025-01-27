@@ -1,27 +1,23 @@
 
 import key from '../../../APIKey'
 
-export async function POST(req){
+export async function PUT(req){
 	try {
-		const { title, author, genre } = await req.json();
-	
-		const response = await fetch('https://upunikself-fe0e.restdb.io/rest/books', {
-			method: 'POST',
+		const { username, favorite_books, _id } = await req.json();
+        console.log(_id)
+		const response = await fetch(`https://upunikself-fe0e.restdb.io/rest/fav-book-users/6796739c9168b33d00006ae1`, {
+			method: 'PUT',
 			headers: {
 				'content-type': 'application/json',
 				'cache-control': 'no-cache',
 				'x-apikey': key,
 			},
             body: JSON.stringify({
-                title: title,
-                author: author,
-                genre: genre
+                username: username,
+                favorite_books: favorite_books
             })
 		});
-
-        if(!response.ok){
-            console.log("Something went wrong")
-        }        
+    
 
         const responseData = await response.json();
         console.log(responseData)
@@ -33,7 +29,8 @@ export async function POST(req){
 			'x-apikey': key,
 		},
 		});
-	  } catch (error) {
+	  } 
+      catch (error) {
 		console.error('Error loading favorites:', error);
 		return new Response(
 		  JSON.stringify({ error: 'Failed to load favorites' }),
