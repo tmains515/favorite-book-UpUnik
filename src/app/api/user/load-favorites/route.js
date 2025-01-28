@@ -2,10 +2,10 @@ import key from '../../../APIKey'
 
 export async function POST(req) {
     try {
-        const { username } = await req.json();
+        const { _id } = await req.json();
         // Fetch the current user record
         const userResponse = await fetch(
-            `https://upunikself-fe0e.restdb.io/rest/fav-book-users?q={"username": "admin"}`,
+            `https://upunikself-fe0e.restdb.io/rest/fav-book-users?q={"username" : "admin"}`,
             {
                 method: 'GET',
                 headers: {

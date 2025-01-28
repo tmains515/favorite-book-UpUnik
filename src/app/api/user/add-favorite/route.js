@@ -5,7 +5,7 @@ export async function PUT(req){
 	try {
 		const { username, favorite_books, _id } = await req.json();
         console.log(_id)
-		const response = await fetch(`https://upunikself-fe0e.restdb.io/rest/fav-book-users/6796739c9168b33d00006ae1`, {
+		const response = await fetch(`https://upunikself-fe0e.restdb.io/rest/fav-book-users/${_id}`, {
 			method: 'PUT',
 			headers: {
 				'content-type': 'application/json',

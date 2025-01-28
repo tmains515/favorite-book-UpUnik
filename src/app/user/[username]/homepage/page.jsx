@@ -7,22 +7,24 @@ const homepage = () => {
     const userData = searchParams.get('userData') ? JSON.parse(searchParams.get('userData')) : null;
     const [userFavorites, setUserFavorites] = useState([]);
     const [edit, setEdit] = useState(null);
+    const [editIndex, setEditIndex] = useState(null);
     const [submit, setSubmit] = useState(false)
     const [formData, setFormData] = useState({
         title: '',
         author: '',
         genre: '',
     });
+
+    // Fetch intial user favorites data
     useEffect(() => {
         const fetchData = async () => {
             try {
-
                 const response = await fetch('/api/user/load-favorites', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username: userData.username }),
+                    body: JSON.stringify({ _id: userData.id }),
                 });
 
                 if (!response.ok) {
@@ -40,9 +42,9 @@ const homepage = () => {
         if(submit){
             setSubmit(false)
         }
-    }, [userData.username, submit])
+    }, [userData.id, submit])
 
-
+    // populate feilds if edit is active
     useEffect(() => {
         if (edit !== null) {
             setFormData({
@@ -52,6 +54,7 @@ const homepage = () => {
             });
         }
     }, [edit]);
+    
 
     // Handle input changes
     const handleChange = (e) => {
@@ -62,72 +65,108 @@ const homepage = () => {
         }));
     };
 
-    // Handle form submission based on edit active or not
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        const updatedFavorites = [
-            ...userFavorites,
-            {
+        let updatedFavorites = [...userFavorites];
+
+        if (edit !== null) {
+            updatedFavorites[editIndex] = {
+                ...updatedFavorites[editIndex],
                 title: formData.title,
                 author: formData.author,
                 genre: formData.genre,
-            },
-        ];
+            };
+            
+        } 
+        else {
+            updatedFavorites = [
+                ...userFavorites,
+                {
+                    title: formData.title,
+                    author: formData.author,
+                    genre: formData.genre,
+                },
+            ];
+        }
     
         setUserFavorites(updatedFavorites);
-        console.log(JSON.stringify(userData)+ "<<")
+            const newFavorite = async () => {
+            try {
+                
+                const request = await fetch('/api/user/add-favorite', {
+                    method: 'PUT',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _id: userData.id,
+                        username: userData.username,
+                        favorite_books: updatedFavorites,
+                    }),
+                });
+                if (!request.ok) {
+                    throw new Error('Failed to update favorites');
+                }
+    
+                const data = await request.json();
+                alert(data.message);
+    
+                
+                setSubmit(true);
+                setFormData({
+                    title: '',
+                    author: '',
+                    genre: '',
+                });
+                setEdit(null);
+                setEditIndex(null)
+            } catch (error) {
+                console.error('Error updating favorites:', error.message);
+            }
+        };
+    
+        newFavorite();
+    };
 
-        // If edit is null, submit as POST 
-        const newFavorite = async() => {
+
+    const handleDelete = async (deleteIndex) => {
+        try {
+            const updatedFavorites = userFavorites.filter((book, index) => index !== deleteIndex);
+            console.log(updatedFavorites)
+            console.log(deleteIndex)
+
+            // Update the local state
+            setUserFavorites(updatedFavorites);
+    
+            // Send the updated favorites to the server
             const request = await fetch('/api/user/add-favorite', {
                 method: 'PUT',
                 headers: {
-                    'content-type': 'application/json'
+                    'content-type': 'application/json',
                 },
                 body: JSON.stringify({
                     _id: userData.id,
                     username: userData.username,
-                    favorite_books: updatedFavorites
+                    favorite_books: updatedFavorites,
                 }),
-            })
-            if (!request.ok) {
-                throw new Error('Failed to add to favorites');
-            }
-
-            const data = await request.json();
-            alert(data.message);
-            setSubmit(true);
-            setFormData({
-                title: '',
-                author: '',
-                genre: '',
             });
-        }
-
-
-        // If edit is not null, submit as PUT
-        const updateFavorite = async() => {
-            const request = await fetch('/api/user/add-favorite', {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json'
-                }
-            })
     
             if (!request.ok) {
-                throw new Error('Failed to load favorites');
+                throw new Error('Failed to update favorites');
             }
+    
+            const data = await request.json();
+        } catch (error) {
+            console.error('Error updating favorites:', error.message);
         }
-
-        if(edit === null){
-            newFavorite()
-        }
-        else{
-            updateFavorite()
-        }
-
+        setEditIndex(null)
     };
+    
+    
+
+
+    
 
     return (
         <div className='flex flex-col w-full h-screen'>
@@ -196,8 +235,8 @@ const homepage = () => {
                             <h1 className='text-xl font-semibold'>Options</h1>
 
                         </div>
-                        {userFavorites.map((book) => (
-                            <BookTile book={book} setEdit={setEdit} />
+                        {userFavorites.map((book, index) => (
+                            <BookTile book={book} setEdit={setEdit} handleDelete={handleDelete} key={index} index={index} setEditIndex={setEditIndex}/>
                         ))}
 
                     </div>

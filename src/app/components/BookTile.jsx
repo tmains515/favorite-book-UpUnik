@@ -1,6 +1,6 @@
 
 
-const BookTile = ({ book, setEdit }) => {
+const BookTile = ({ book, setEdit, handleDelete, index, setEditIndex }) => {
 
     return (
         <div className="w-full shadow-lg mt-4 ">
@@ -18,10 +18,10 @@ const BookTile = ({ book, setEdit }) => {
                             {book.genre}
                         </td>
                         <td className="px-4 py-2 border break-words max-w-1/4 text-center">
-                            <button className="bg-blue-400 rounded-md" onClick={() => setEdit(book)}>
+                            <button className="bg-blue-400 rounded-md" onClick={() => {setEdit(book); setEditIndex(index)}}>
                                 <img src='/pencil.png' alt="" className='w-8 h-8'/>
                             </button>
-                            <button className="bg-red-400 m-2 rounded-md">
+                            <button className="bg-red-400 m-2 rounded-md" onClick={() => handleDelete(index)}>
                                 <img src='/trash.png' alt=""  className='w-8 h-8'/>
                             </button>
                         </td>
