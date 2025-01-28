@@ -1,6 +1,7 @@
 'use client'
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
 import BookTile from '@/app/components/BookTile';
 import ProfileModal from '../../../components/ProfileModal'
 const homepage = () => {
@@ -141,7 +142,7 @@ const homepage = () => {
             setUserFavorites(updatedFavorites);
     
             const request = await fetch('/api/user/add-favorite', {
-                method: 'PUT',
+                method: 'DELETE',
                 headers: {
                     'content-type': 'application/json',
                 },
@@ -245,7 +246,7 @@ const homepage = () => {
 
 
             </div>
-            {showProfile ? <ProfileModal userData={userData} setShowProfile={setShowProfile} setProfileEdit={setProfileEdit}/> : ""}
+            {showProfile ? <ProfileModal userData={userData} setShowProfile={setShowProfile} /> : ""}
 
             <div className='absolute top-0 right-0 w-10 h-10  m-4'>
                     <button onClick={() => setShowProfile(true)}>

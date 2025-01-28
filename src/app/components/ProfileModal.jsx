@@ -1,8 +1,10 @@
+'use client'
 import { useState } from "react";
 import key from '../APIKey'
+import { useRouter } from "next/navigation";
 
-const ProfileModal = ( {userData , setShowProfile, setProfileEdit} ) => {
-    console.log(userData)
+const ProfileModal = ( {userData , setShowProfile} ) => {
+    const router = useRouter();
     const [formData, setFormData] = useState({
         username: userData.username,
         email: userData.email,
@@ -40,7 +42,6 @@ const ProfileModal = ( {userData , setShowProfile, setProfileEdit} ) => {
             if(!response.ok){
              console.log('something went wrong')       
             }
-            setProfileEdit(true)    
         } 
         catch (error) {
             console.log(error)
@@ -48,8 +49,7 @@ const ProfileModal = ( {userData , setShowProfile, setProfileEdit} ) => {
         setShowProfile(false)
     }
 
-    const handleDelete = async () => {
-                
+    const handleDelete = async (e) => {
         e.preventDefault();
         try {
             const response = await fetch('/api/user/createUser', {
@@ -59,7 +59,7 @@ const ProfileModal = ( {userData , setShowProfile, setProfileEdit} ) => {
                     'cache-control': 'no-cache',
                     'x-apikey': key,
                 },
-                
+                body: JSON.stringify({ _id: userData.id })
             })
             if(!response.ok){
              console.log('something went wrong')       
@@ -69,6 +69,7 @@ const ProfileModal = ( {userData , setShowProfile, setProfileEdit} ) => {
             console.log(error)
         }
         setShowProfile(false)
+        router.push('/')
     }
 
 

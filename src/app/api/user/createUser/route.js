@@ -44,11 +44,6 @@ export async function PUT(req) {
 
 	try {
 		const { _id, username, email, password, favorite_books } = await req.json();
-		console.log("User ID (_id):", _id);
-console.log("Username:", username);
-console.log("Email:", email);
-console.log("Password:", password);
-console.log("Favorite Books:", favorite_books);
 
 		const response = await fetch(`https://upunikself-fe0e.restdb.io/rest/fav-book-users/${_id}`, {
 			method: 'PUT',
@@ -94,7 +89,6 @@ export async function DELETE(req) {
 
 	try {
 		const { _id } = await req.json();
-		console.log(_id)
 
 		const response = await fetch(`https://upunikself-fe0e.restdb.io/rest/fav-book-users/${_id}`, {
 			method: 'DELETE',

@@ -28,7 +28,8 @@ export default function Home() {
 
 			//passing user object via search params
 			router.push(`/user/${username}/homepage?userData=${encodeURIComponent(JSON.stringify(data))}`);
-			} catch (error) {
+			} 
+			catch (error) {
 			console.error('Login failed:', error.message);
 		}
 
