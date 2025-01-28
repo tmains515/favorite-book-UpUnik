@@ -2,10 +2,13 @@
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import BookTile from '@/app/components/BookTile';
+import ProfileModal from '../../../components/ProfileModal'
 const homepage = () => {
     const searchParams = useSearchParams();
     const userData = searchParams.get('userData') ? JSON.parse(searchParams.get('userData')) : null;
     const [userFavorites, setUserFavorites] = useState([]);
+    const [showProfile, setShowProfile] = useState(false);
+
     const [edit, setEdit] = useState(null);
     const [editIndex, setEditIndex] = useState(null);
     const [submit, setSubmit] = useState(false)
@@ -32,7 +35,6 @@ const homepage = () => {
                 }
 
                 const data = await response.json();
-                console.log(data + "<<this is data")
                 setUserFavorites(data)
             } catch (error) {
                 console.error(error.message);
@@ -136,10 +138,8 @@ const homepage = () => {
             console.log(updatedFavorites)
             console.log(deleteIndex)
 
-            // Update the local state
             setUserFavorites(updatedFavorites);
     
-            // Send the updated favorites to the server
             const request = await fetch('/api/user/add-favorite', {
                 method: 'PUT',
                 headers: {
@@ -169,7 +169,7 @@ const homepage = () => {
     
 
     return (
-        <div className='flex flex-col w-full h-screen'>
+        <div className={`flex flex-col w-full h-screen ${showProfile ? 'bg-black opacity-60' : ""}`} >
             <h1 className='text-4xl m-10'>Welcome back, {userData.username}!</h1>
             <h1 className='text-4xl mx-auto'>Your favorite books</h1>
             <div className='flex w-1/2 h-1/2 bg-[#ededed] m-auto rounded-2xl shadow-2xl'>
@@ -243,6 +243,14 @@ const homepage = () => {
 
                 </div>
 
+
+            </div>
+            {showProfile ? <ProfileModal userData={userData} setShowProfile={setShowProfile} setProfileEdit={setProfileEdit}/> : ""}
+
+            <div className='absolute top-0 right-0 w-10 h-10  m-4'>
+                    <button onClick={() => setShowProfile(true)}>
+                        <img src="/profile.png" alt="" />
+                    </button>    
             </div>
         </div>
 

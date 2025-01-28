@@ -1,11 +1,13 @@
 import key from '../../../APIKey'
 
 export async function POST(req) {
+    const body = await req.json();
+    const { _id } = body;
+
     try {
-        const { _id } = await req.json();
         // Fetch the current user record
         const userResponse = await fetch(
-            `https://upunikself-fe0e.restdb.io/rest/fav-book-users?q={"username" : "admin"}`,
+            `https://upunikself-fe0e.restdb.io/rest/fav-book-users/${_id}`,
             {
                 method: 'GET',
                 headers: {
@@ -20,8 +22,8 @@ export async function POST(req) {
             throw new Error('Failed to fetch user');
         }
 
-        const users = await userResponse.json();
-        const user = users[0];
+        const user = await userResponse.json();
+        console.log(JSON.stringify(user))
 
         const favoriteBooks = user.favorite_books || [];
 
