@@ -9,7 +9,7 @@ export default function Home() {
 	const userNameRef = useRef(null);
 	const userPassRef = useRef(null);
 
-	// Login calling api path
+	// Login
 	const login = async (username, password) => {
 		try {
 			const response = await fetch('/api/user/login', {
@@ -59,7 +59,7 @@ export default function Home() {
 				}
 			</main>
 
-			{ }
+			{/* Modal for creating new user */}
 			{createUserModal ? <Modal setCreateUserModal={setCreateUserModal} /> : ""}
 
 

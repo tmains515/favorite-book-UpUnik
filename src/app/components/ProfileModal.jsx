@@ -3,7 +3,7 @@ import { useState } from "react";
 import key from '../APIKey'
 import { useRouter } from "next/navigation";
 
-const ProfileModal = ( {userData , setShowProfile} ) => {
+const ProfileModal = ( {userData , setShowProfile, setEditProfile, setUser} ) => {
     const router = useRouter();
     const [formData, setFormData] = useState({
         username: userData.username,
@@ -39,14 +39,24 @@ const ProfileModal = ( {userData , setShowProfile} ) => {
                     favorite_books: userData.favorite_books
                 })
             })
+
             if(!response.ok){
-             console.log('something went wrong')       
+             throw new Error('something went wrong')       
             }
+
+            setUser((prevUser) => ({
+                ...prevUser,
+                username: formData.username,
+                email: formData.email,
+                password: formData.password,
+            }));
+
         } 
         catch (error) {
             console.log(error)
         }
         setShowProfile(false)
+        setEditProfile(true)
     }
 
     const handleDelete = async (e) => {

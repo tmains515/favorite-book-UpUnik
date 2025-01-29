@@ -1,15 +1,18 @@
 'use client'
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
 
 import BookTile from '@/app/components/BookTile';
 import ProfileModal from '../../../components/ProfileModal'
 const homepage = () => {
+    const router = useRouter()
     const searchParams = useSearchParams();
     const userData = searchParams.get('userData') ? JSON.parse(searchParams.get('userData')) : null;
     const [userFavorites, setUserFavorites] = useState([]);
     const [showProfile, setShowProfile] = useState(false);
-
+    const [user, setUser] = useState(userData ? { ...userData } : {})
+    const [editProfile, setEditProfile] = useState(false);
     const [edit, setEdit] = useState(null);
     const [editIndex, setEditIndex] = useState(null);
     const [submit, setSubmit] = useState(false)
@@ -28,7 +31,7 @@ const homepage = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ _id: userData.id }),
+                    body: JSON.stringify({ _id: user.id }),
                 });
 
                 if (!response.ok) {
@@ -42,10 +45,15 @@ const homepage = () => {
             }
         }
         fetchData()
-        if(submit){
+        if (submit) {
             setSubmit(false)
         }
-    }, [userData.id, submit])
+        if(editProfile){
+            console.log(user)
+            setEditProfile(false)
+        }
+
+    }, [user, submit])
 
     // populate feilds if edit is active
     useEffect(() => {
@@ -57,7 +65,7 @@ const homepage = () => {
             });
         }
     }, [edit]);
-    
+
 
     // Handle input changes
     const handleChange = (e) => {
@@ -80,8 +88,8 @@ const homepage = () => {
                 author: formData.author,
                 genre: formData.genre,
             };
-            
-        } 
+
+        }
         else {
             updatedFavorites = [
                 ...userFavorites,
@@ -92,30 +100,30 @@ const homepage = () => {
                 },
             ];
         }
-    
+
         setUserFavorites(updatedFavorites);
-            const newFavorite = async () => {
+
+        /* Handles book array update */
+        const newFavorite = async () => {
             try {
-                
-                const request = await fetch('/api/user/add-favorite', {
+
+                const request = await fetch('/api/user/handle-favorite', {
                     method: 'PUT',
                     headers: {
                         'content-type': 'application/json',
                     },
                     body: JSON.stringify({
-                        _id: userData.id,
-                        username: userData.username,
+                        _id: user.id,
+                        username: user.username,
                         favorite_books: updatedFavorites,
                     }),
                 });
                 if (!request.ok) {
                     throw new Error('Failed to update favorites');
                 }
-    
+
                 const data = await request.json();
-                alert(data.message);
-    
-                
+
                 setSubmit(true);
                 setFormData({
                     title: '',
@@ -128,50 +136,47 @@ const homepage = () => {
                 console.error('Error updating favorites:', error.message);
             }
         };
-    
+
         newFavorite();
     };
 
-
+    /** Handles book array delete */
     const handleDelete = async (deleteIndex) => {
         try {
             const updatedFavorites = userFavorites.filter((book, index) => index !== deleteIndex);
-            console.log(updatedFavorites)
-            console.log(deleteIndex)
-
             setUserFavorites(updatedFavorites);
-    
-            const request = await fetch('/api/user/add-favorite', {
-                method: 'DELETE',
+
+            const request = await fetch('/api/user/handle-favorite', {
+                method: 'PUT',
                 headers: {
                     'content-type': 'application/json',
                 },
                 body: JSON.stringify({
-                    _id: userData.id,
-                    username: userData.username,
+                    _id: user.id,
+                    username: user.username,
                     favorite_books: updatedFavorites,
                 }),
             });
-    
+
             if (!request.ok) {
                 throw new Error('Failed to update favorites');
             }
-    
+
             const data = await request.json();
         } catch (error) {
             console.error('Error updating favorites:', error.message);
         }
         setEditIndex(null)
     };
-    
-    
 
 
-    
+
+
+
 
     return (
         <div className={`flex flex-col w-full h-screen ${showProfile ? 'bg-black opacity-60' : ""}`} >
-            <h1 className='text-4xl m-10'>Welcome back, {userData.username}!</h1>
+            <h1 className='text-4xl m-10'>Welcome back, {user.username}!</h1>
             <h1 className='text-4xl mx-auto'>Your favorite books</h1>
             <div className='flex w-1/2 h-1/2 bg-[#ededed] m-auto rounded-2xl shadow-2xl'>
                 <div className='w-full h-full grid grid-rows-6 grid-cols-6'>
@@ -237,7 +242,7 @@ const homepage = () => {
 
                         </div>
                         {userFavorites.map((book, index) => (
-                            <BookTile book={book} setEdit={setEdit} handleDelete={handleDelete} key={index} index={index} setEditIndex={setEditIndex}/>
+                            <BookTile book={book} setEdit={setEdit} handleDelete={handleDelete} key={index} index={index} setEditIndex={setEditIndex} />
                         ))}
 
                     </div>
@@ -246,12 +251,23 @@ const homepage = () => {
 
 
             </div>
-            {showProfile ? <ProfileModal userData={userData} setShowProfile={setShowProfile} /> : ""}
+            {showProfile ? <ProfileModal userData={user} setShowProfile={setShowProfile} setEditProfile={setEditProfile} setUser={setUser}/> : ""}
 
             <div className='absolute top-0 right-0 w-10 h-10  m-4'>
-                    <button onClick={() => setShowProfile(true)}>
-                        <img src="/profile.png" alt="" />
-                    </button>    
+                <button onClick={() => setShowProfile(true)}>
+                    <img src="/profile.png" alt="" />
+                </button>
+            </div>
+
+
+            <div className='absolute bottom-10 right-20 w-auto h-auto p-8 m-4'>
+                <button
+                    type="submit"
+                    className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 p-4"
+                    onClick={() => router.push('/')}
+                >
+                    Logout
+                </button>
             </div>
         </div>
 
