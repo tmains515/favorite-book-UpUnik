@@ -46,7 +46,7 @@ export default function Home() {
 						<label htmlFor="" className="text-black">Username:</label>
 						<input type="text" ref={userNameRef} className="text-black" />
 						<label htmlFor="" className="text-black">Password:</label>
-						<input type="text" ref={userPassRef} className="text-black" />
+						<input type="password" ref={userPassRef} className="text-black" />
 						<button className="bg-[#80cc84] px-4 h-10 rounded-xl hover:bg-[#609e63] mt-4" onClick={() => login(userNameRef.current.value, userPassRef.current.value)}>Sign-In</button>
 
 					</div>
